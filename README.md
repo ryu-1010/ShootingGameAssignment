@@ -1,1 +1,2 @@
-# ShootingGameAssignment
+# 2Dシューティングゲーム
+## 操作方法
