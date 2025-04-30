@@ -81,7 +81,7 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "left",
+                    "name": "up",
                     "id": "524493cb-3a58-49d2-85eb-3438abb51565",
                     "path": "<Keyboard>/w",
                     "interactions": "",
@@ -92,7 +92,7 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "right",
+                    "name": "down",
                     "id": "35d683a5-3405-4efe-9b61-9b2551078205",
                     "path": "<Keyboard>/s",
                     "interactions": "",
@@ -103,7 +103,7 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "down",
+                    "name": "left",
                     "id": "2ae69293-591f-4b4a-af79-b64c0982eaf4",
                     "path": "<Keyboard>/a",
                     "interactions": "",
@@ -114,7 +114,7 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "up",
+                    "name": "right",
                     "id": "ef327400-0a34-4feb-adaa-f4d2fc24afc9",
                     "path": "<Keyboard>/d",
                     "interactions": "",
@@ -129,7 +129,7 @@
                     "id": "a79777f8-5ff1-4b80-9320-d2a17ba9ef51",
                     "path": "<Gamepad>/leftStick",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "InvertVector2",
                     "groups": "",
                     "action": "Move",
                     "isComposite": false,
@@ -151,7 +151,7 @@
                     "id": "2fba1109-2155-4b2e-813d-7f2bc338b0ea",
                     "path": "<DualShockGamepad>/leftStick",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "InvertVector2",
                     "groups": "",
                     "action": "Move",
                     "isComposite": false,
