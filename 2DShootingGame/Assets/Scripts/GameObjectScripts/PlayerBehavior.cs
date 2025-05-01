@@ -8,6 +8,8 @@ using static UnityEditor.Timeline.TimelinePlaybackControls;
 public class PlayerBehavior : MonoBehaviour
 {
 	[Header("プレイヤーのパラメーター")]
+	// UIを管理するスクリプト
+	[SerializeField, Tooltip("プレイヤーの残機を管理するスクリプト")] PlayerHeart playerHeart;
 	// ライフ(残機)
 	[SerializeField,Tooltip("ライフの数")] private int life = 3;
 	// 無敵状態か(true:無敵、false:通常)
@@ -30,9 +32,14 @@ public class PlayerBehavior : MonoBehaviour
 	[SerializeField,ReadOnly] private List<GameObject> bulletPool = new List<GameObject>();
 	// 弾の最大数
 	[SerializeField] private int bulletMaxNum = 30;
-	
+	[SerializeField,Tooltip("弾のインターバル")] private float fireInterval = 0.2f; // 弾の発射間隔
+
+	private Coroutine fireCoroutine;
 	void Awake()
 	{
+		// コンポーネントを取得
+		playerHeart = GetComponent<PlayerHeart>();
+
 		// 無敵時間のカウントの初期化
 		invincibleTimeCount = invincibleTime;
 
@@ -64,11 +71,15 @@ public class PlayerBehavior : MonoBehaviour
 		if (isInvincible)
 		{
 			invincibleTimeCount -= Time.deltaTime;
-			if (invincibleTime <= 0f)
+			if (invincibleTimeCount <= 0f)
 			{
 				isInvincible = false; // 無敵状態を解除
-				invincibleTimeCount = invincibleTime; // 無敵時間をリセット
 			}
+		}
+
+		if (Input.GetKeyDown(KeyCode.V))
+		{
+			TakeDamage();
 		}
 	}
 
@@ -116,23 +127,54 @@ public class PlayerBehavior : MonoBehaviour
 		transform.position = pos;
 	}
 
-	// 弾発射の入力
-	public void OnFire(InputAction.CallbackContext _context)
+	// 入力イベント（ボタンを押した・離した）に応じて処理する
+	public void OnFire(InputAction.CallbackContext context)
 	{
-		// オブジェクトプールから弾を取得
-		foreach (GameObject bullet in bulletPool)
+		// ボタンが押された瞬間（初回のみ）
+		if (context.started)
 		{
-			// 弾が使用中かどうか確認
-			if (!bullet.activeSelf)
+			// 発射処理を開始（Coroutineをスタート）
+			fireCoroutine = StartCoroutine(FireContinuously());
+		}
+		// ボタンが離された瞬間
+		else if (context.canceled)
+		{
+			// 発射処理を停止（Coroutineを止める）
+			if (fireCoroutine != null)
 			{
-				// 使用していない場合、玉を発射
-				bullet.transform.position = transform.position;
-				bullet.SetActive(true);
-				break;
+				StopCoroutine(fireCoroutine);
+				fireCoroutine = null;
 			}
 		}
 	}
 
+	// 一定間隔で弾を発射し続けるCoroutine
+	private IEnumerator FireContinuously()
+	{
+		while (true)
+		{
+			FireBullet(); // 弾を1発発射
+			yield return new WaitForSeconds(fireInterval); // 次の発射まで待機
+		}
+	}
+
+	// 弾をプールから取得して発射
+	private void FireBullet()
+	{
+		foreach (GameObject bullet in bulletPool)
+		{
+			// まだ使われていない弾を探す
+			if (!bullet.activeSelf)
+			{
+				// 弾の位置をプレイヤーの位置にセット
+				bullet.transform.position = transform.position;
+
+				// 弾をアクティブにして発射
+				bullet.SetActive(true);
+				break; // 1発だけ発射したら終了
+			}
+		}
+	}
 	// ダメージ処理
 	public void TakeDamage()
 	{
@@ -143,6 +185,10 @@ public class PlayerBehavior : MonoBehaviour
 			life--; 
 			// 無敵状態に移行
 			isInvincible = true;
+			// タイマー
+			invincibleTimeCount = invincibleTime;
+			// UIを更新
+			playerHeart.SetLives(life);
 		}
 		else { Debug.Log("ゲームオーバー"); }
 	}
