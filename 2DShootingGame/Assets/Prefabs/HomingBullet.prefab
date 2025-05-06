@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 317315529506823516}
   - component: {fileID: 4367486110736950777}
-  - component: {fileID: 8183719792557529177}
   - component: {fileID: 6264940775089352770}
   - component: {fileID: -6495721203925011758}
+  - component: {fileID: -5036740342850454940}
   m_Layer: 0
-  m_Name: NormalBullet
-  m_TagString: Bullet
+  m_Name: HomingBullet
+  m_TagString: EnemyBullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -87,23 +87,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &8183719792557529177
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6526831141501547853}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 60c68dc135f6e954ca9a498a4fba9a4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bulletSpeed: 5
-  bulletVec: {x: 1, y: 0}
-  bulletDamage: 3
-  bulletLifeTime: 10
-  bulletLifeTimeCount: 0
 --- !u!61 &6264940775089352770
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -176,3 +159,21 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &-5036740342850454940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6526831141501547853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42ca6ace73a28444985001bc54ce9c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletSpeed: 5
+  rotateSpeed: 200
+  bulletDamage: 1
+  bulletLifeTime: 2
+  bulletLifeTimeCount: 0
+  target: {fileID: 6999512792226173371, guid: cf002e7e86c13d045a5ecde561beaf0f, type: 3}

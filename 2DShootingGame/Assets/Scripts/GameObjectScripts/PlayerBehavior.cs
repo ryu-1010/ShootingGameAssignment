@@ -32,7 +32,10 @@ public class PlayerBehavior : MonoBehaviour
 	[SerializeField,ReadOnly] private List<GameObject> bulletPool = new List<GameObject>();
 	// 弾の最大数
 	[SerializeField] private int bulletMaxNum = 30;
+	// 弾の発射間隔
 	[SerializeField,Tooltip("弾のインターバル")] private float fireInterval = 0.2f; // 弾の発射間隔
+	// 弾の発射位置のオフセット
+	[SerializeField, Tooltip("弾のオフセット")] private Vector3 fireOffsetPos = new Vector3(0.5f, 0, 0);
 
 	private Coroutine fireCoroutine;
 	void Awake()
@@ -128,16 +131,16 @@ public class PlayerBehavior : MonoBehaviour
 	}
 
 	// 入力イベント（ボタンを押した・離した）に応じて処理する
-	public void OnFire(InputAction.CallbackContext context)
+	public void OnFire(InputAction.CallbackContext _context)
 	{
 		// ボタンが押された瞬間（初回のみ）
-		if (context.started)
+		if (_context.started)
 		{
 			// 発射処理を開始（Coroutineをスタート）
 			fireCoroutine = StartCoroutine(FireContinuously());
 		}
 		// ボタンが離された瞬間
-		else if (context.canceled)
+		else if (_context.canceled)
 		{
 			// 発射処理を停止（Coroutineを止める）
 			if (fireCoroutine != null)
@@ -167,7 +170,7 @@ public class PlayerBehavior : MonoBehaviour
 			if (!bullet.activeSelf)
 			{
 				// 弾の位置をプレイヤーの位置にセット
-				bullet.transform.position = transform.position;
+				bullet.transform.position = transform.position + fireOffsetPos;
 
 				// 弾をアクティブにして発射
 				bullet.SetActive(true);

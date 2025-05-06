@@ -8,7 +8,7 @@ public class NormalBullet : MonoBehaviour
 	// 弾の移動速度
 	[SerializeField, Tooltip("弾の移動速度")] private float bulletSpeed = 5f;
 	// 弾の移動方向
-	[SerializeField, Tooltip("弾の移動方向"), ReadOnly] private Vector2 bulletVec = Vector2.right;
+	[SerializeField, Tooltip("弾の移動方向")] private Vector2 bulletVec = Vector2.right;
 	// 弾のダメージ
 	[SerializeField, Tooltip("弾のダメージ")] private int bulletDamage = 1;
 	// 弾の生存時間
@@ -35,6 +35,7 @@ public class NormalBullet : MonoBehaviour
 			bulletLifeTimeCount = 0f; // 生存時間カウントをリセット
 		}
 
+
 		// 弾の移動
 		transform.Translate(bulletVec * bulletSpeed * Time.deltaTime);
 
@@ -56,19 +57,24 @@ public class NormalBullet : MonoBehaviour
 	{
 		Debug.Log("弾が当たったオブジェクトのタグ: " + _other.gameObject.tag);
 		// 弾が当たったオブジェクトのタグを確認
-		if (_other.gameObject.CompareTag("Enemy"))
+		if (this.gameObject.CompareTag("Bullet") && _other.gameObject.CompareTag("Enemy"))
 		{
 			// 弾のダメージを敵に与える
 			// _collision.gameObject.GetComponent<EnemyBehavior>().TakeDamage(bulletDamage);
 			// 弾を非アクティブにする
 			gameObject.SetActive(false);
 		}
-		if(_other.gameObject.CompareTag("Wall"))
+		else if(this.gameObject.CompareTag("Bullet") && _other.gameObject.CompareTag("EnemyBullet"))
+		{
+			GameManager.AddScore();
+			_other.gameObject.SetActive(false);
+		}
+		else if (_other.gameObject.CompareTag("Wall"))
 		{
 			// 壁に当たったら弾を非アクティブにする
 			gameObject.SetActive(false);
 		}
-		else if(_other.gameObject.CompareTag("Player"))
+		else if (_other.gameObject.CompareTag("Player"))
 		{
 			// プレイヤーに当たったら弾を非アクティブにする
 			gameObject.SetActive(false);
