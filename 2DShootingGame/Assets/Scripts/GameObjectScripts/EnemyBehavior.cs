@@ -8,29 +8,30 @@ using static UnityEditor.Timeline.TimelinePlaybackControls;
 public class EnemyBehavior : MonoBehaviour
 {
 	[Header("敵のパラメーター")]
-	[NamedArrayAttribute(new string[] { "MainBody HP", "RightBody HP", "LeftBody HP"})]
-	[SerializeField,Tooltip("敵の体力")] private float[] hitPoint = new float[3];
-	private float[] maxHitPoint = new float[3];
-
 	// 弾のオブジェクトプールの親オブジェ
-	[SerializeField, ReadOnly] private GameObject poolParent;
-
-	[NamedArrayAttribute(new string[] { "NormalBullet", "HomingBullet" })]
-	[SerializeField,Tooltip("弾のプレハブ")] private GameObject[] bulletPrefabs = new GameObject[2];
+	[SerializeField,ReadOnly] private GameObject poolParent;
+	// 弾のプレハブ
+	[SerializeField,Tooltip("弾のプレハブ")] private GameObject bulletPrefab;
 	// 弾のオブジェクトプール
-	[SerializeField] List<List<GameObject>> bulletPool = new List<List<GameObject>>();
+	[SerializeField] List<GameObject> bulletPool = new List<GameObject>();
+	// 弾数
+	[SerializeField, Tooltip("放射弾の最大数")] int radialBulletMaxNum = 10;
 
-	[SerializeField, Tooltip("通常弾の最大数")] int normalBulletMaxNum = 50;
-	[SerializeField, Tooltip("特殊弾の最大数")] int uniqueBulletMaxNum = 10;
+
+	[Header("移動関係")]
+	[SerializeField, Tooltip("敵の体力")] private float moveSpeed = 2f;
+	[SerializeField, Tooltip("敵の体力")] private float moveRange = 2f;
+	private Vector3 startPos;
+	private float direction = 1f;
 
 	// Start is called before the first frame update
 	void Awake()
     {
-		// 最大値を記録
-		maxHitPoint = hitPoint;
+		// 初期位置を記録
+		startPos = transform.position;
 
 		// 弾の生成
-		CreateBullets();
+		CreateBullet();
 
 
 	}
@@ -38,14 +39,10 @@ public class EnemyBehavior : MonoBehaviour
 	// Update is called once per frame
 	void Update()
     {
-        
-    }
-
-	// 通常弾攻撃
-	void FireNormalBullet()
-	{
-		
+		float offset = Mathf.Sin(Time.time * moveSpeed) * moveRange;
+		transform.position = startPos + new Vector3(0, offset, 0);
 	}
+
 
 	// 放射弾攻撃
 	void FireRadialBullet()
@@ -53,42 +50,25 @@ public class EnemyBehavior : MonoBehaviour
 		
 	}
 
-	// ホーミング弾攻撃
-	void FireHomingBullet()
-	{
-
-	}
 
 	// 通常弾、特殊弾の生成
-	void CreateBullets()
+	void CreateBullet()
 	{
 		// 親オブジェクト生成
 		poolParent = new GameObject("EnemyBulletPool");
 
-		// 通常弾を作成
-		List<GameObject> normalBulletPool = new List<GameObject>();
-		for (int i = 0; i < normalBulletMaxNum; i++)
-		{
-			GameObject bullet = Instantiate(bulletPrefabs[0], poolParent.transform);
-			bullet.SetActive(false);
-			normalBulletPool.Add(bullet);
-		}
-		bulletPool.Add(normalBulletPool);
-
-
 		// 放射状に発射する弾を作成
-		List<GameObject> radialBulletPool = new List<GameObject>();
 		float angleStart = -45f;             // 上方向
 		float angleEnd = -135f;              // 下方向
-		float angleStep = (angleEnd - angleStart) / uniqueBulletMaxNum;
+		float angleStep = (angleEnd - angleStart) / radialBulletMaxNum;
 		float angle = angleStart;
 
 		// 弾を事前に生成してプールに格納
-		for (int i = 0; i < uniqueBulletMaxNum; i++)
+		for (int i = 0; i < radialBulletMaxNum; i++)
 		{
-			GameObject bullet = Instantiate(bulletPrefabs[0], poolParent.transform);
+			GameObject bullet = Instantiate(bulletPrefab, poolParent.transform);
 			bullet.SetActive(false);
-			radialBulletPool.Add(bullet);
+			bulletPool.Add(bullet);
 			// 角度を計算
 			float dirX = Mathf.Cos(angle * Mathf.Deg2Rad);
 			float dirY = Mathf.Sin(angle * Mathf.Deg2Rad);
@@ -101,22 +81,6 @@ public class EnemyBehavior : MonoBehaviour
 			angle += angleStep;
 
 		}
-		bulletPool.Add(radialBulletPool);
-
-
-		// ホーミング弾の生成
-		List<GameObject> homingBulletPool = new List<GameObject>();
-
-		Transform target = GameObject.Find("Player").transform;
-		for (int i = 0; i < uniqueBulletMaxNum; i++)
-		{
-			GameObject bullet = Instantiate(bulletPrefabs[1], poolParent.transform);
-			bullet.SetActive(false);
-			bullet.GetComponent<HomingBullet>().SetTarget(target);
-			normalBulletPool.Add(bullet);
-
-		}
-		bulletPool.Add(homingBulletPool);
 
 	}
 }

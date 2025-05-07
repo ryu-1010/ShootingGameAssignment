@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class NormalBullet : MonoBehaviour
 {
@@ -21,7 +22,7 @@ public class NormalBullet : MonoBehaviour
 	void Start()
 	{
 
-		SetBulletDirection(Vector2.right);
+		
 
 	}
 
@@ -35,19 +36,19 @@ public class NormalBullet : MonoBehaviour
 			bulletLifeTimeCount = 0f; // 生存時間カウントをリセット
 		}
 
+		// 弾の向きをセットする
+		transform.up = bulletVec;
 
 		// 弾の移動
-		transform.Translate(bulletVec * bulletSpeed * Time.deltaTime);
+		transform.position += (Vector3)(bulletVec * bulletSpeed * Time.deltaTime);
 
 	}
 
 	// 弾の移動方向を設定するメソッド
 	public void SetBulletDirection(Vector2 _direction)
 	{
-		// 弾の向きをセットする
-		transform.up = bulletVec;
 		// 弾の移動方向をセットする
-		bulletVec = new Vector2(_direction.y, _direction.x);
+		bulletVec = _direction;
 
 	}
 
@@ -56,11 +57,15 @@ public class NormalBullet : MonoBehaviour
 	private void OnTriggerEnter2D(Collider2D _other)
 	{
 		Debug.Log("弾が当たったオブジェクトのタグ: " + _other.gameObject.tag);
+
+		// 生存時間カウントをリセット
+		bulletLifeTimeCount = 0f; 
+
 		// 弾が当たったオブジェクトのタグを確認
 		if (this.gameObject.CompareTag("Bullet") && _other.gameObject.CompareTag("Enemy"))
 		{
 			// 弾のダメージを敵に与える
-			// _collision.gameObject.GetComponent<EnemyBehavior>().TakeDamage(bulletDamage);
+			// _collision.gameObject.GetComponent<EnemyHealth>().TakeDamage(bulletDamage);
 			// 弾を非アクティブにする
 			gameObject.SetActive(false);
 		}

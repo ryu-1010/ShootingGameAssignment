@@ -15,7 +15,6 @@ public class HomingBullet : MonoBehaviour
 
 	private bool isHoming = true;
 
-	private Rigidbody2D rb;
 	[SerializeField]private Transform target;
 	[SerializeField]private Vector2 direction;
 
@@ -26,7 +25,7 @@ public class HomingBullet : MonoBehaviour
 
 	private void Awake()
 	{
-		rb = GetComponent<Rigidbody2D>();
+
 	}
 
 	private void Update()
@@ -64,6 +63,8 @@ public class HomingBullet : MonoBehaviour
 		transform.up = toTarget;
 		transform.position += (Vector3)(toTarget * bulletSpeed * Time.deltaTime);
 	}
+
+
 	private void OnTriggerEnter2D(Collider2D _other)
 	{
 		if (this.gameObject.CompareTag("EnemyBullet") && _other.gameObject.CompareTag("Bullet"))

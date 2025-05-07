@@ -618,6 +618,48 @@ Transform:
   - {fileID: 739439009}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1428864125 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3825293517645976548, guid: 1877eb2d220b2de4c87ab419c3c792c9, type: 3}
+  m_PrefabInstance: {fileID: 4130453756601382527}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1428864129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1428864125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e841e23936921d49a91ac7d6cbc94ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  bulletPrefab: {fileID: 6526831141501547853, guid: 6d003183e43cede45af5dee431808dbe, type: 3}
+  bulletMaxNum: 50
+  fireOffsetPos: {x: 0, y: 0, z: 0}
+  fireInterval: 5
+  bulletsPerShot: 10
+  delayBetweenBullets: 0.25
+--- !u!1 &1663384475 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6068223282108005602, guid: 1877eb2d220b2de4c87ab419c3c792c9, type: 3}
+  m_PrefabInstance: {fileID: 4130453756601382527}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1663384479
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1663384475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb5099cc0179b0e41978aa0efb0c3c6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
 --- !u!1 &1774574907
 GameObject:
   m_ObjectHideFlags: 0
@@ -873,6 +915,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 617200104}
     m_Modifications:
+    - target: {fileID: 1780721984970582400, guid: 1877eb2d220b2de4c87ab419c3c792c9, type: 3}
+      propertyPath: bulletPrefab
+      value: 
+      objectReference: {fileID: 6526831141501547853, guid: 6d003183e43cede45af5dee431808dbe, type: 3}
+    - target: {fileID: 1780721984970582400, guid: 1877eb2d220b2de4c87ab419c3c792c9, type: 3}
+      propertyPath: bulletPrefabs
+      value: 
+      objectReference: {fileID: 6526831141501547853, guid: 6d003183e43cede45af5dee431808dbe, type: 3}
+    - target: {fileID: 1780721984970582400, guid: 1877eb2d220b2de4c87ab419c3c792c9, type: 3}
+      propertyPath: radialBulletMaxNum
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2088248545591292569, guid: 1877eb2d220b2de4c87ab419c3c792c9, type: 3}
       propertyPath: m_Name
       value: Boss
@@ -920,7 +974,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6068223282108005602, guid: 1877eb2d220b2de4c87ab419c3c792c9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1663384479}
+    - targetCorrespondingSourceObject: {fileID: 3825293517645976548, guid: 1877eb2d220b2de4c87ab419c3c792c9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1428864129}
   m_SourcePrefab: {fileID: 100100000, guid: 1877eb2d220b2de4c87ab419c3c792c9, type: 3}
 --- !u!1001 &4181456597705738075
 PrefabInstance:

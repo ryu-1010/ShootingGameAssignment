@@ -54,6 +54,7 @@ public class PlayerBehavior : MonoBehaviour
 		{
 			GameObject bullet = Instantiate(bulletPrefab, poolParent.transform);
 			bullet.SetActive(false);
+			bullet.GetComponent<NormalBullet>().SetBulletDirection(Vector2.right);
 			bulletPool.Add(bullet);
 		}
 	}
