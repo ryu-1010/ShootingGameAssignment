@@ -6,26 +6,34 @@ public class HomingBullet : MonoBehaviour
 {
 	[Header("弾のパラメーター")]
 	[SerializeField, Tooltip("弾の移動速度")] private float bulletSpeed = 5f;
-	[SerializeField, Tooltip("回転速度（追尾の鋭さ）")] private float rotateSpeed = 200f;
-	[SerializeField, Tooltip("弾のダメージ")] private int bulletDamage = 1;
 	[SerializeField, Tooltip("弾の生存時間")] private float bulletLifeTime = 2f;
 	[SerializeField, Tooltip("弾の生存可能時間"), ReadOnly] private float bulletLifeTimeCount = 0f;
 
 	[SerializeField] private float maxHomingAngle = 60f; // 追尾を続けられる最大角度
 
-	private bool isHoming = true;
+	[SerializeField,ReadOnly]private bool isHoming = true;
 
 	[SerializeField]private Transform target;
 	[SerializeField]private Vector2 direction;
 
+	[SerializeField, Tooltip("敵の弾の際の加算スコアの値")] public int addScoreValue = 10;
+
+
 	public void SetTarget(Transform _target)
 	{
 		target = _target;
+		transform.up = Vector2.left;
+
 	}
 
 	private void Awake()
 	{
+		transform.up = Vector2.left;
+	}
 
+	private void Start()
+	{
+		isHoming = true;
 	}
 
 	private void Update()
@@ -50,7 +58,7 @@ public class HomingBullet : MonoBehaviour
 		Vector2 currentDir = transform.up;
 
 		// 現在の向きとターゲット方向との角度を取得
-		float angle = Vector2.Angle(currentDir, toTarget);
+		float angle = Vector2.Angle(currentDir, target.position);
 
 		if (angle > maxHomingAngle)
 		{
@@ -64,17 +72,24 @@ public class HomingBullet : MonoBehaviour
 		transform.position += (Vector3)(toTarget * bulletSpeed * Time.deltaTime);
 	}
 
+	void OnEnable()
+	{
+		isHoming = true;
+		bulletLifeTimeCount = 0f;
+	}
+
+
 
 	private void OnTriggerEnter2D(Collider2D _other)
 	{
 		if (this.gameObject.CompareTag("EnemyBullet") && _other.gameObject.CompareTag("Bullet"))
 		{
-			GameManager.AddScore();
+			GameManager.AddScore(addScoreValue);
 			_other.gameObject.SetActive(false);
 		}
 		else if (_other.gameObject.CompareTag("Wall"))
 		{
-			//gameObject.SetActive(false);
+			gameObject.SetActive(false);
 		}
 		else if (_other.gameObject.CompareTag("Player"))
 		{

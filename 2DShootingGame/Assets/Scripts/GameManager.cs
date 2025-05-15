@@ -1,42 +1,132 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Linq.Expressions;
-using UnityEngine.SocialPlatforms.Impl;
-
+using UnityEngine.InputSystem;
+using System.Collections;
 
 /// <summary>
-/// ゲーム管理用クラス
+/// ゲームの状態管理やスコア管理、シーン遷移を司る静的クラス。
 /// </summary>
-public class GameManager : MonoBehaviour
+public static class GameManager
 {
-	// 唯一のインスタンス
-	private static GameManager instance;
-	[Tooltip("スコア"),ReadOnly] public static float score;
+	// プレイヤーのスコア
+	public static int score;
 
-	// 起動時に
-	void Awake()
+	// 遷移先のシーン名
+	private static string pendingSceneName = null;
+
+	// 表示するメッセージ（Game Overなど）
+	private static string pendingMessage = null;
+
+	// メッセージ表示に使用するUIテキスト（TextMeshPro）
+	private static TextMeshProUGUI messageText = null;
+
+	// 入力待ち状態かどうか
+	private static bool isWaitingForInput = false;
+
+	// スコアを加算する
+	public static void AddScore(int _score)
 	{
-		// インスタンスがあるか
-		if (instance == null)
+		score += _score;
+	}
+
+	// ゲームクリア時に呼び出す。メッセージを表示し、任意の入力でシーンを切り替える。
+	public static void GameClear()
+	{
+		ShowMessageAndWaitForInput("Game Clear!!\nPush Space or X button", "TitleScene");
+	}
+
+	// ゲームオーバー時に呼び出す。メッセージを表示し、任意の入力でシーンを切り替える。
+	public static void GameOver()
+	{
+		ShowMessageAndWaitForInput("Game Over\nPush Space or X button", "TitleScene");
+	}
+
+	// メッセージを表示し、任意の入力があれば指定のシーンへ遷移する処理を開始。
+	private static void ShowMessageAndWaitForInput(string _message, string _sceneName)
+	{
+		pendingMessage = _message;
+		pendingSceneName = _sceneName;
+
+		ShowMessage(_message);
+
+		// 任意入力待ち → シーン遷移コルーチン開始
+		GameManagerHelper.Instance.StartCoroutine(WaitForAnyInputAndChangeScene());
+	}
+
+	// UIにメッセージを表示する
+	private static void ShowMessage(string _message)
+	{
+		// TextMeshPro オブジェクトがまだ取得されていなければ探す
+		if (messageText == null)
 		{
-			// なければ変数にインスタンスを格納
-			instance = this;
-			// このスクリプトがアタッチされているオブジェクトがシーンをまたいでも消えないように
-			DontDestroyOnLoad(gameObject);
+			GameObject textObj = GameObject.Find("MessageText");
+			if (textObj != null)
+			{
+				messageText = textObj.GetComponent<TextMeshProUGUI>();
+			}
+			else
+			{
+				Debug.LogWarning("MessageText が見つかりませんでした。");
+				return;
+			}
 		}
-		else
+
+		// メッセージの表示
+		if (messageText != null)
 		{
-			Destroy(gameObject); // すでに存在している場合は破棄
+			messageText.text = _message;
+			messageText.gameObject.SetActive(true);
 		}
 	}
 
-	// 点数の加算
-	public static void AddScore(float _value = 10)
+	// 任意のボタン入力があるまで待機し、その後シーンを変更する。
+	private static IEnumerator WaitForAnyInputAndChangeScene()
 	{
-		score += _value;
+		isWaitingForInput = true;
+
+		while (isWaitingForInput)
+		{
+			yield return null;
+		}
+
+		if (!string.IsNullOrEmpty(pendingSceneName))
+		{
+			// 指定されたシーンへ遷移
+			SceneManager.LoadScene(pendingSceneName);
+
+			// データを初期化
+			pendingSceneName = null;
+			pendingMessage = null;
+			messageText = null;
+		}
 	}
+
+	// 入力があったことを通知する。外部から呼び出される。
+	public static void NotifyInputReceived()
+	{
+		if (isWaitingForInput)
+		{
+			isWaitingForInput = false;
+		}
+	}
+
+	// 指定されたシーンに即時遷移する
+
+	public static void SceneChange(string _sceneName)
+	{
+		SceneManager.LoadScene(_sceneName);
+	}
+
+	// シーン遷移後にMessageTextを再取得する（シーン変更で失われるため）
+	public static void RefreshUI()
+	{
+		GameObject textObj = GameObject.Find("MessageText");
+		if (textObj != null)
+		{
+			messageText = textObj.GetComponent<TextMeshProUGUI>();
+		}
+	}
+
 
 }

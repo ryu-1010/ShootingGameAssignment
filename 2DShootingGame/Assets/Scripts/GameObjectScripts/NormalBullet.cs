@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
-public class NormalBullet : MonoBehaviour
+public interface IBullet
+{
+	void SetBulletDirection(Vector2 _dir);
+}
+public class NormalBullet : MonoBehaviour, IBullet
 {
 	[Header("弾のパラメーター")]
 	// 弾の移動速度
@@ -11,11 +15,13 @@ public class NormalBullet : MonoBehaviour
 	// 弾の移動方向
 	[SerializeField, Tooltip("弾の移動方向")] private Vector2 bulletVec = Vector2.right;
 	// 弾のダメージ
-	[SerializeField, Tooltip("弾のダメージ")] private int bulletDamage = 1;
+	[SerializeField, Tooltip("弾のダメージ")] private int bulletDamage = 10;
 	// 弾の生存時間
 	[SerializeField, Tooltip("弾の生存時間")] private float bulletLifeTime = 2f;
 	// 弾の生存可能時間
 	[SerializeField, Tooltip("弾の生存可能時間"), ReadOnly] private float bulletLifeTimeCount = 0f;
+
+	[SerializeField, Tooltip("敵の弾の際の加算スコアの値")] public int addScoreValue = 10;
 
 
 	// Start is called before the first frame update
@@ -52,11 +58,14 @@ public class NormalBullet : MonoBehaviour
 
 	}
 
-
+	void OnEnable()
+	{
+		bulletLifeTimeCount = 0f;
+	}
 
 	private void OnTriggerEnter2D(Collider2D _other)
 	{
-		Debug.Log("弾が当たったオブジェクトのタグ: " + _other.gameObject.tag);
+		//Debug.Log("弾が当たったオブジェクトのタグ: " + _other.gameObject.tag);
 
 		// 生存時間カウントをリセット
 		bulletLifeTimeCount = 0f; 
@@ -65,13 +74,13 @@ public class NormalBullet : MonoBehaviour
 		if (this.gameObject.CompareTag("Bullet") && _other.gameObject.CompareTag("Enemy"))
 		{
 			// 弾のダメージを敵に与える
-			// _collision.gameObject.GetComponent<EnemyHealth>().TakeDamage(bulletDamage);
+			_other.gameObject.GetComponent<EnemyHealth>().TakeDamage(bulletDamage);
 			// 弾を非アクティブにする
 			gameObject.SetActive(false);
 		}
 		else if(this.gameObject.CompareTag("Bullet") && _other.gameObject.CompareTag("EnemyBullet"))
 		{
-			GameManager.AddScore();
+			GameManager.AddScore(addScoreValue);
 			_other.gameObject.SetActive(false);
 		}
 		else if (_other.gameObject.CompareTag("Wall"))

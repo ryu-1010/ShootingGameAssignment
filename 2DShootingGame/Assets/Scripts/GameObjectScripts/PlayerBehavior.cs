@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEditor.Timeline.TimelinePlaybackControls;
 
 public class PlayerBehavior : MonoBehaviour
 {
@@ -19,9 +18,14 @@ public class PlayerBehavior : MonoBehaviour
 	// 無敵時間のカウント
 	private float invincibleTimeCount = 0f;
 	// 移動速度
-	[SerializeField, Tooltip("移動速度")] private float moveSpeed = 1f;
+	[SerializeField, Tooltip("移動速度")] private float currentMoveSpeed = 5f;
+	[SerializeField, Tooltip("移動速度")] private float slowMoveSpeed = 3f;
+	[SerializeField, Tooltip("移動速度")] private float moveSpeed = 5f;
 	// 移動方向
 	[SerializeField, Tooltip("移動方向"), ReadOnly] private Vector2 moveVec = Vector2.zero;
+
+	// 死んだか
+	private bool isDied = false;
 
 	[Header("弾関係")]
 	// 弾のプレハブ
@@ -36,6 +40,11 @@ public class PlayerBehavior : MonoBehaviour
 	[SerializeField,Tooltip("弾のインターバル")] private float fireInterval = 0.2f; // 弾の発射間隔
 	// 弾の発射位置のオフセット
 	[SerializeField, Tooltip("弾のオフセット")] private Vector3 fireOffsetPos = new Vector3(0.5f, 0, 0);
+
+	[Header("爆弾関係")]
+	[SerializeField, Tooltip("爆弾のプレハブ")] GameObject bombPrefab;
+	[SerializeField,Tooltip("使用回数"),ReadOnly] const int bombMaxNum = 3;
+	[SerializeField,Tooltip("使用したか"),ReadOnly] bool[] bombUsed = new bool[bombMaxNum];
 
 	private Coroutine fireCoroutine;
 	void Awake()
@@ -69,6 +78,13 @@ public class PlayerBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+		if(life <= 0 && !isDied)
+		{
+			isDied = true;
+			GameManager.GameOver();
+		}
+
 		Move();
 
 		// 無敵時間のカウント
@@ -81,10 +97,7 @@ public class PlayerBehavior : MonoBehaviour
 			}
 		}
 
-		if (Input.GetKeyDown(KeyCode.V))
-		{
-			TakeDamage();
-		}
+
 	}
 
 	// 移動の入力
@@ -108,12 +121,27 @@ public class PlayerBehavior : MonoBehaviour
 		}
 	}
 
+	// 低速移動
+	public void OnSlowMoveStarted(InputAction.CallbackContext _context)
+	{
+
+		if (_context.performed)
+		{
+			// 押しっぱなし更新
+			currentMoveSpeed = slowMoveSpeed; // 低速移動の速度に切り替え
+		}
+		else if (_context.canceled)
+		{
+			// 離した瞬間
+			currentMoveSpeed = moveSpeed; // 低速移動の速度に切り替え
+		}
+		
+	}
+
 	private void Move()
 	{
-		// 移動方向の調整
-		Vector2 tmpVec = new Vector2(-moveVec.y, moveVec.x);
 		// 移動
-		transform.Translate(tmpVec * moveSpeed * Time.deltaTime);
+		transform.position += (Vector3)moveVec * currentMoveSpeed * Time.deltaTime;
 
 		// プレイヤーの位置を画面内に制限
 		Vector3 pos = transform.position;
@@ -131,19 +159,38 @@ public class PlayerBehavior : MonoBehaviour
 		transform.position = pos;
 	}
 
-	// 入力イベント（ボタンを押した・離した）に応じて処理する
-	public void OnFire(InputAction.CallbackContext _context)
+	// 入力イベント : 敵の弾をすべて破壊する爆弾の発射
+	public void OnBombFire(InputAction.CallbackContext _context)
 	{
-		// ボタンが押された瞬間（初回のみ）
-		if (_context.started)
+		// ボタンが押された瞬間にのみ処理する
+		if (_context.performed)
 		{
-			// 発射処理を開始（Coroutineをスタート）
-			fireCoroutine = StartCoroutine(FireContinuously());
+			for (int i = 0; i < bombMaxNum; i++)
+			{
+				if (!bombUsed[i])
+				{
+					GameObject bomb = Instantiate(bombPrefab);
+					bomb.transform.position = transform.position;
+					bombUsed[i] = true;
+					break;
+				}
+			}
 		}
-		// ボタンが離された瞬間
-		else if (_context.canceled)
+	}
+
+	// 入力イベント（ボタンを押した・離した）に応じて処理する
+	public void OnFire(InputAction.CallbackContext context)
+	{
+		if (context.performed)
 		{
-			// 発射処理を停止（Coroutineを止める）
+			// コルーチンが二重に始まらないようにチェック
+			if (fireCoroutine == null)
+			{
+				fireCoroutine = StartCoroutine(FireContinuously());
+			}
+		}
+		else if (context.canceled)
+		{
 			if (fireCoroutine != null)
 			{
 				StopCoroutine(fireCoroutine);
@@ -151,6 +198,7 @@ public class PlayerBehavior : MonoBehaviour
 			}
 		}
 	}
+
 
 	// 一定間隔で弾を発射し続けるCoroutine
 	private IEnumerator FireContinuously()
@@ -194,6 +242,6 @@ public class PlayerBehavior : MonoBehaviour
 			// UIを更新
 			playerHeart.SetLives(life);
 		}
-		else { Debug.Log("ゲームオーバー"); }
+
 	}
 }
